@@ -20,26 +20,37 @@ class ChapterChunkRepo:
     """章节块数据仓库类，专注于 chapter_chunks 表的操作"""
 
     @staticmethod
-    def insert_chunk(conn: Connection, chunk: ChapterChunk) -> bool:
+    def upsert_chunk(conn: Connection, chunk: ChapterChunk) -> bool:
         """
-        插入或替换单个章节块（幂等操作）
-        如果章节块已存在，将替换为新的内容；如果不存在，将插入新记录
+        插入或更新章节块（UPSERT操作）
+        如果chunk_id不存在则插入新记录，如果存在则更新指定字段
+
+        这是标准的 UPSERT 操作，使用 SQLite 的 INSERT ... ON CONFLICT 语法
 
         Args:
             conn: 数据库连接对象（由上层管理生命周期）
             chunk: 章节块对象
 
         Returns:
-            bool: 操作是否成功（插入或替换都算成功）
-
-        Raises:
-            SQLiteStorageError: 数据库操作失败
+            bool: 操作是否成功（插入或更新都算成功）
         """
         sql = """
-        INSERT OR REPLACE INTO chapter_chunks
+        INSERT INTO chapter_chunks
         (chunk_id, novel_name, chapter_id, chapter_title, line_start, line_end,
          pos_start, pos_end, char_count, token_count, content)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(chunk_id) DO UPDATE SET
+            novel_name = excluded.novel_name,
+            chapter_id = excluded.chapter_id,
+            chapter_title = excluded.chapter_title,
+            line_start = excluded.line_start,
+            line_end = excluded.line_end,
+            pos_start = excluded.pos_start,
+            pos_end = excluded.pos_end,
+            char_count = excluded.char_count,
+            token_count = excluded.token_count,
+            content = excluded.content,
+            updated_at = CURRENT_TIMESTAMP
         """
 
         params = (
@@ -54,46 +65,6 @@ class ChapterChunkRepo:
             chunk.char_count,
             chunk.token_count,
             chunk.content
-        )
-
-        cursor = conn.execute(sql, params)
-        return cursor.rowcount > 0
-
-    @staticmethod
-    def update_chunk(conn: Connection, chunk: ChapterChunk) -> bool:
-        """
-        更新章节块
-
-        Args:
-            conn: 数据库连接对象（由上层管理生命周期）
-            chunk: 章节块对象
-
-        Returns:
-            bool: 更新是否成功
-
-        Raises:
-            SQLiteStorageError: 数据库操作失败
-        """
-        sql = """
-        UPDATE chapter_chunks
-        SET novel_name = ?, chapter_id = ?, chapter_title = ?, line_start = ?, line_end = ?,
-            pos_start = ?, pos_end = ?, char_count = ?, token_count = ?, content = ?,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE chunk_id = ?
-        """
-
-        params = (
-            chunk.novel_name,
-            chunk.chapter_id,
-            chunk.chapter_title,
-            chunk.line_start,
-            chunk.line_end,
-            chunk.pos_start,
-            chunk.pos_end,
-            chunk.char_count,
-            chunk.token_count,
-            chunk.content,
-            chunk.chunk_id
         )
 
         cursor = conn.execute(sql, params)
