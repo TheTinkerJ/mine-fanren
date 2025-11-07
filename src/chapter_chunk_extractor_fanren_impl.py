@@ -5,12 +5,18 @@
 专门用于《凡人修仙传》小说章节分块提取
 """
 
-from typing import List, Tuple, Dict, Optional
+import sys
+import os
+from typing import List, Tuple, Dict
 import re
-import uuid
 
-from models import ChapterChunk
-from utils import count_tokens
+# 添加项目根目录到 Python 路径，支持直接运行脚本
+# project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# if project_root not in sys.path:
+#     sys.path.insert(0, project_root)
+
+from .models import ChapterChunk
+from .utils import count_tokens
 
 
 class ChapterChunkExtractor:
