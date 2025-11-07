@@ -192,7 +192,7 @@ Output:"""
         analysis_text = response.content
 
         # 提取关键信息
-        result = self._parse_validation_result(analysis_text, missing_id)
+        result = self._parse_validation_result(analysis_text, missing_id) # type: ignore
 
         result['missing_id'] = missing_id
         result['prev_chunk'] = prev_chunk
