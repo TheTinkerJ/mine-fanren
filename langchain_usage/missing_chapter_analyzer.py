@@ -6,10 +6,14 @@
 """
 
 import os
+import sys
 from typing import List, Optional, Tuple
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
+
+# 添加 src 目录到 Python 路径，以便导入依赖的模块
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from chapter_chunk_extractor_fanren_impl import ChapterChunkExtractor
 from models import ChapterChunk
