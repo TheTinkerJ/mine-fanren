@@ -7,7 +7,6 @@
 
 from pydantic import BaseModel, Field
 import uuid
-from typing import Optional
 
 
 class ChapterChunk(BaseModel):

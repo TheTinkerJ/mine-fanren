@@ -4,15 +4,8 @@
 SQLite DQL (Data Query Language) 操作
 包含章节块的增删改查操作
 """
-
-import sys
-import os
-from typing import List, Optional, Dict
+from typing import List, Dict
 from sqlite3 import Connection
-
-# 添加 src 目录到 Python 路径，以便导入 models
-# sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ''))
-
 from ..models import ChapterChunk
 
 

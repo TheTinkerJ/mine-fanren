@@ -5,10 +5,8 @@
 专门用于《凡人修仙传》小说章节分块提取
 """
 
-from typing import List, Tuple, Dict, Optional
+from typing import List, Tuple, Dict
 import re
-import uuid
-
 from models import ChapterChunk
 from utils import count_tokens
 
