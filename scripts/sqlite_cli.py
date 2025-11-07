@@ -64,7 +64,6 @@ def main():
         epilog="""
 使用示例:
   python sqlite_cli.py -q fanren 1      # 查询《凡人修仙传》第1章
-  python sqlite_cli.py -q "修仙" 5      # 查询小说《修仙》第5章
         """
     )
 
