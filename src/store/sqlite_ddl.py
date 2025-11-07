@@ -26,7 +26,8 @@ CREATE TABLE IF NOT EXISTS chapter_chunks (
     token_count INTEGER,
     content TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(novel_name, chapter_id)
 );
 """
 
@@ -34,7 +35,6 @@ CREATE TABLE IF NOT EXISTS chapter_chunks (
 INDEX_STATEMENTS = [
     "CREATE INDEX IF NOT EXISTS idx_novel_name ON chapter_chunks(novel_name);",
     "CREATE INDEX IF NOT EXISTS idx_chapter_id ON chapter_chunks(chapter_id);",
-    "CREATE INDEX IF NOT EXISTS idx_novel_chapter ON chapter_chunks(novel_name, chapter_id);",
 ]
 
 

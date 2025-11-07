@@ -5,6 +5,9 @@ SQLite 存储模块类型定义
 包含异常类和类型提示
 """
 
+from dataclasses import dataclass
+from typing import Optional
+
 
 class SQLiteStorageError(Exception):
     """SQLite 存储操作异常基类"""

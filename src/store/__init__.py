@@ -6,12 +6,8 @@ SQLite 存储模块
 """
 
 from .sqlite_conn import SqliteDB, get_sqlite_db
-from .sqlite_dql import ChapterChunkRepo
-from .sqlite_types import (
-    SQLiteStorageError,
-    DuplicateChunkError,
-    ChunkNotFoundError
-)
+from .sqlite_repo import ChapterChunkRepo
+from .sqlite_types import SQLiteStorageError
 
 __all__ = [
     # 核心接口
@@ -21,6 +17,4 @@ __all__ = [
 
     # 异常类型
     'SQLiteStorageError',
-    'DuplicateChunkError',
-    'ChunkNotFoundError',
 ]
