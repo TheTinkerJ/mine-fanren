@@ -41,7 +41,7 @@ class ChapterChunk(BaseModel):
         line_end: int,
         pos_start: int,
         pos_end: int,
-        token_count: Optional[int] = None
+        token_count: int
     ) -> "ChapterChunk":
         """
         创建章节块实例
@@ -62,10 +62,6 @@ class ChapterChunk(BaseModel):
         """
         # 生成不带横线的UUID
         chunk_id = uuid.uuid4().hex.replace('-', '')
-
-        # 如果没有提供token_count，用字符数估算（简单估算：字符数/2）
-        if token_count is None:
-            token_count = len(content) // 2
 
         return cls(
             novel_name=novel_name,
