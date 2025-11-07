@@ -227,7 +227,9 @@ Output:"""
             line = line.strip()
 
             if line.startswith('判断结果:'):
-                result['result'] = line.split(':', 1)[1].strip()
+                raw_result = line.split(':', 1)[1].strip()
+                # 清理结果格式，去除可能的 ** 标记
+                result['result'] = raw_result.strip('**')
             elif line.startswith('置信度:'):
                 try:
                     confidence_str = line.split(':', 1)[1].strip()
@@ -251,6 +253,11 @@ Output:"""
                     pass
             elif current_field == 'analysis' and line:
                 result['analysis'] += '\n' + line
+
+        # 确保结果类型是有效的
+        valid_results = ['MISSING', 'FOUND_TITLE', 'NOT_MISSING', 'UNCLEAR']
+        if result['result'] not in valid_results:
+            result['result'] = 'UNCLEAR'
 
         return result
 
@@ -343,12 +350,17 @@ Output:"""
         found_configs = []
 
         for result in results:
+            result_type = result['result'].strip('**')  # 去除可能的 ** 标记
+            # 确保结果类型在统计范围内
+            if result_type not in stats:
+                result_type = 'UNCLEAR'
+
             print(f"\n第{result['missing_id']}章:")
             print(f"  判断结果: {result['result']}")
             print(f"  置信度: {result['confidence']}/10")
             print(f"  分析: {result['analysis'][:100]}...")
 
-            stats[result['result']] += 1
+            stats[result_type] += 1
 
             if result['found_title']:
                 found_configs.append(result['found_title'])
