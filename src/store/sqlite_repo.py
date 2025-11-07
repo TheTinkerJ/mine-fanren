@@ -13,20 +13,21 @@ class ChapterChunkRepo:
     """章节块数据仓库类，专注于 chapter_chunks 表的操作"""
 
     @staticmethod
-    def upsert_chunk(conn: Connection, chunk: ChapterChunk) -> bool:
+    def upsert_chunks(conn: Connection, chunks: List[ChapterChunk]) -> int:
         """
-        插入或更新章节块（UPSERT操作）
-        如果chunk_id不存在则插入新记录，如果存在则更新指定字段
-
-        这是标准的 UPSERT 操作，使用 SQLite 的 INSERT ... ON CONFLICT 语法
+        批量插入或更新章节块（批量UPSERT操作）
+        批量处理多个章节块，大幅提升性能
 
         Args:
             conn: 数据库连接对象（由上层管理生命周期）
-            chunk: 章节块对象
+            chunks: 章节块对象列表
 
         Returns:
-            bool: 操作是否成功（插入或更新都算成功）
+            int: 成功处理的章节数量
         """
+        if not chunks:
+            return 0
+
         sql = """
         INSERT INTO chapter_chunks
         (chunk_id, novel_name, chapter_id, chapter_title, line_start, line_end,
@@ -46,22 +47,27 @@ class ChapterChunkRepo:
             updated_at = CURRENT_TIMESTAMP
         """
 
-        params = (
-            chunk.chunk_id,
-            chunk.novel_name,
-            chunk.chapter_id,
-            chunk.chapter_title,
-            chunk.line_start,
-            chunk.line_end,
-            chunk.pos_start,
-            chunk.pos_end,
-            chunk.char_count,
-            chunk.token_count,
-            chunk.content
-        )
+        # 构建批量参数
+        params_list = []
+        for chunk in chunks:
+            params = (
+                chunk.chunk_id,
+                chunk.novel_name,
+                chunk.chapter_id,
+                chunk.chapter_title,
+                chunk.line_start,
+                chunk.line_end,
+                chunk.pos_start,
+                chunk.pos_end,
+                chunk.char_count,
+                chunk.token_count,
+                chunk.content
+            )
+            params_list.append(params)
 
-        cursor = conn.execute(sql, params)
-        return cursor.rowcount > 0
+        # 执行批量操作
+        cursor = conn.executemany(sql, params_list)
+        return cursor.rowcount
 
     @staticmethod
     def get_chunks_by_ids(conn: Connection, chunk_ids: List[str]) -> Dict[str, ChapterChunk]:
