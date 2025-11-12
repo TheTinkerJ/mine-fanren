@@ -183,39 +183,3 @@ class FanrenEntityExtractor:
         return processed_results
 
 
-def create_async_extractor() -> FanrenEntityExtractor:
-    """
-    Create async entity extractor instance
-
-    Returns:
-        FanrenEntityExtractor: Extractor instance
-    """
-    return FanrenEntityExtractor()
-
-
-async def extract_from_text_chunk(textChunk: str) -> ErExtractResult:
-    """
-    Convenience function: extract entities from a single text chunk asynchronously
-
-    Args:
-        textChunk: Text content to extract entities from
-
-    Returns:
-        ErExtractResult: Extraction result
-    """
-    extractor = create_async_extractor()
-    return await extractor.extract_entities_and_relations(textChunk)
-
-
-async def extract_from_text_chunks_batch(textChunks: list[str]) -> list[ErExtractResult]:
-    """
-    Convenience function: extract entities from multiple text chunks asynchronously
-
-    Args:
-        textChunks: List of text chunks
-
-    Returns:
-        List of extraction results
-    """
-    extractor = create_async_extractor()
-    return await extractor.extract_from_chunks_batch(textChunks)
