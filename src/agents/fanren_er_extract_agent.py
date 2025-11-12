@@ -11,6 +11,7 @@ import time
 import logging
 from typing import Optional
 from dotenv import load_dotenv
+from pydantic import SecretStr
 
 # Load environment variables
 load_dotenv()
@@ -49,14 +50,15 @@ class FanrenERExtractorAgent:
         if not self.model_name:
             raise ValueError("MINIMAX_OPENAI_MODEL environment variable is required")
 
-        # Initialize LangChain ChatOpenAI with MiniMax backend
+        # Initialize ChatOpenAI with MiniMax backend and reasoning_split support
         self.llm = ChatOpenAI(
-            api_key=self.api_key,
-            base_url=self.base_url,
             model=self.model_name,
+            api_key=SecretStr(self.api_key),
+            base_url=self.base_url,
             temperature=0.1,
-            timeout=30,
-            model_kwargs={"reasoning_split": True}
+            timeout=60,
+            extra_body={"reasoning_split": True},
+            model_kwargs={"response_format": {"type": "json_object"}}
         )
 
         # Initialize JSON output parser
@@ -99,7 +101,7 @@ class FanrenERExtractorAgent:
 
             # Parse JSON response
             try:
-                extraction_data = self.json_parser.parse(response.content)
+                extraction_data = self.json_parser.parse(response.content)  # type: ignore
             except OutputParserException as e:
                 logger.error(f"Failed to parse JSON response: {e}")
                 logger.error(f"Raw response: {response.content}")
@@ -145,81 +147,3 @@ class FanrenERExtractorAgent:
                 exc_info=True
             )
             return ErExtractResult(entities=[], relationships=[])
-
-    async def extract_from_chunks_batch(
-        self,
-        chunks: list[ChapterChunk]
-    ) -> list[ErExtractResult]:
-        """
-        Extract entities from multiple chunks concurrently
-
-        Args:
-            chunks: List of chapter chunks
-
-        Returns:
-            List of extraction results
-        """
-        import asyncio
-
-        logger.info(f"Starting batch entity extraction for {len(chunks)} chunks")
-
-        # Create tasks for concurrent processing
-        tasks = [
-            self.extract_entities_and_relations(chunk)
-            for chunk in chunks
-        ]
-
-        # Wait for all tasks to complete
-        results = await asyncio.gather(*tasks, return_exceptions=True)
-
-        # Process results and log exceptions
-        processed_results = []
-        for i, result in enumerate(results):
-            if isinstance(result, Exception):
-                logger.error(f"Chunk {i} extraction failed: {result}")
-                processed_results.append(ErExtractResult(entities=[], relationships=[]))
-            else:
-                processed_results.append(result)
-
-        successful_count = sum(1 for r in processed_results if r.entities or r.relationships)
-        logger.info(f"Batch extraction completed - {successful_count}/{len(chunks)} chunks successful")
-
-        return processed_results
-
-
-def create_async_extractor() -> FanrenERExtractorAgent:
-    """
-    Create async entity extractor instance
-
-    Returns:
-        FanrenERExtractorAgent: Extractor instance
-    """
-    return FanrenERExtractorAgent()
-
-
-async def extract_from_chunk(chunk: ChapterChunk) -> ErExtractResult:
-    """
-    Convenience function: extract entities from a single chapter chunk asynchronously
-
-    Args:
-        chunk: Chapter chunk data
-
-    Returns:
-        ErExtractResult: Extraction result
-    """
-    extractor = create_async_extractor()
-    return await extractor.extract_entities_and_relations(chunk)
-
-
-async def extract_from_chunks_batch(chunks: list[ChapterChunk]) -> list[ErExtractResult]:
-    """
-    Convenience function: extract entities from multiple chunks asynchronously
-
-    Args:
-        chunks: List of chapter chunks
-
-    Returns:
-        List of extraction results
-    """
-    extractor = create_async_extractor()
-    return await extractor.extract_from_chunks_batch(chunks)
