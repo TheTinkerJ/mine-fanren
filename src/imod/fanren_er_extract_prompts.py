@@ -1,5 +1,5 @@
 # 凡人实体提取 SystemMessage
-from .types import PromptTemplate
+from src.models import PromptTemplate
 
 
 FANREN_ENTITY_EXTRACTION_SYSTEM_TEMPLATE = PromptTemplate.create_template(
