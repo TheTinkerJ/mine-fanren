@@ -20,3 +20,15 @@ class ErExtractResult(BaseModel):
     entities: list[ErExtractEntity] = Field(description="实体列表")
     relationships: list[ErExtractRelation] = Field(description="关系列表")
 
+
+class ClaimExtractItem(BaseModel):
+    """事实陈述提取结果中的事实项"""
+    category: str = Field(description="事实类别")
+    subject: str = Field(description="事实涉及的主体")
+    content: str = Field(description="事实内容描述")
+
+
+class ClaimExtractResult(BaseModel):
+    """事实陈述提取结果"""
+    claims: list[ClaimExtractItem] = Field(description="事实陈述列表")
+

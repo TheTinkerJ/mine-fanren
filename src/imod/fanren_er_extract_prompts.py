@@ -64,7 +64,7 @@ FANREN_ENTITY_EXTRACTION_SYSTEM_TEMPLATE = PromptTemplate.create_template(
 }}""",
     required_params=[],  # 系统模板没有变量，只需要输入文本
     language="zh",
-    notes="基于fast_graphrag设计模式的实体提取系统提示词，支持JSON格式输出"
+    notes="基于JSON格式的实体提取系统提示词"
 )
 
 
