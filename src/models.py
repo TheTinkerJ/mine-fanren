@@ -231,3 +231,169 @@ class ChapterChunkTask(BaseModel):
         return (f"ChapterChunkTask(task_id='{self.task_id}', chunk_id='{self.chunk_id}', "
                 f"task_type='{self.task_type}', task_status='{self.task_status}', "
                 f"created_at='{self.created_at}')")
+
+
+class EntityExtraction(BaseModel):
+    """实体抽取记录数据结构"""
+    extraction_id: int | None = Field(description="抽取记录ID，创建时为None", default=None)
+    chunk_id: str = Field(description="章节块唯一标识符")
+    task_id: str = Field(description="抽取任务唯一标识符")
+
+    # 抽取结果字段
+    entity_name: str = Field(description="实体名称")
+    entity_category: str = Field(description="实体类别")
+    entity_description: str | None = Field(description="实体描述", default=None)
+
+    # 时间戳
+    created_at: str = Field(description="创建时间")
+
+    @classmethod
+    def create_extraction(
+        cls,
+        chunk_id: str,
+        task_id: str,
+        entity_name: str,
+        entity_category: str,
+        entity_description: str | None = None
+    ) -> "EntityExtraction":
+        """
+        创建实体抽取记录实例
+
+        Args:
+            chunk_id: 章节块唯一标识符
+            task_id: 抽取任务唯一标识符
+            entity_name: 实体名称
+            entity_category: 实体类别
+            entity_description: 实体描述
+
+        Returns:
+            EntityExtraction: 实体抽取记录实例
+        """
+        from datetime import datetime
+        created_at = datetime.now().isoformat()
+
+        return cls(
+            extraction_id=None,
+            chunk_id=chunk_id,
+            task_id=task_id,
+            entity_name=entity_name,
+            entity_category=entity_category,
+            entity_description=entity_description,
+            created_at=created_at
+        )
+
+    def __str__(self) -> str:
+        """字符串表示"""
+        return f"EntityExtraction(id={self.extraction_id}, name='{self.entity_name}', category='{self.entity_category}')"
+
+
+class RelationExtraction(BaseModel):
+    """关系抽取记录数据结构"""
+    extraction_id: int | None = Field(description="抽取记录ID，创建时为None", default=None)
+    chunk_id: str = Field(description="章节块唯一标识符")
+    task_id: str = Field(description="抽取任务唯一标识符")
+
+    # 抽取结果字段
+    source_entity: str = Field(description="关系源实体")
+    target_entity: str = Field(description="关系目标实体")
+    relationship_type: str | None = Field(description="关系类型", default=None)
+    relationship_description: str | None = Field(description="关系描述", default=None)
+
+    # 时间戳
+    created_at: str = Field(description="创建时间")
+
+    @classmethod
+    def create_extraction(
+        cls,
+        chunk_id: str,
+        task_id: str,
+        source_entity: str,
+        target_entity: str,
+        relationship_type: str | None = None,
+        relationship_description: str | None = None
+    ) -> "RelationExtraction":
+        """
+        创建关系抽取记录实例
+
+        Args:
+            chunk_id: 章节块唯一标识符
+            task_id: 抽取任务唯一标识符
+            source_entity: 关系源实体
+            target_entity: 关系目标实体
+            relationship_type: 关系类型
+            relationship_description: 关系描述
+
+        Returns:
+            RelationExtraction: 关系抽取记录实例
+        """
+        from datetime import datetime
+        created_at = datetime.now().isoformat()
+
+        return cls(
+            extraction_id=None,
+            chunk_id=chunk_id,
+            task_id=task_id,
+            source_entity=source_entity,
+            target_entity=target_entity,
+            relationship_type=relationship_type,
+            relationship_description=relationship_description,
+            created_at=created_at
+        )
+
+    def __str__(self) -> str:
+        """字符串表示"""
+        return f"RelationExtraction(id={self.extraction_id}, '{self.source_entity}' -> '{self.target_entity}')"
+
+
+class ClaimExtraction(BaseModel):
+    """事实陈述抽取记录数据结构"""
+    extraction_id: int | None = Field(description="抽取记录ID，创建时为None", default=None)
+    chunk_id: str = Field(description="章节块唯一标识符")
+    task_id: str = Field(description="抽取任务唯一标识符")
+
+    # 抽取结果字段
+    claim_category: str = Field(description="事实类别")
+    claim_subject: str = Field(description="事实主体")
+    claim_content: str = Field(description="事实内容描述")
+
+    # 时间戳
+    created_at: str = Field(description="创建时间")
+
+    @classmethod
+    def create_extraction(
+        cls,
+        chunk_id: str,
+        task_id: str,
+        claim_category: str,
+        claim_subject: str,
+        claim_content: str
+    ) -> "ClaimExtraction":
+        """
+        创建事实陈述抽取记录实例
+
+        Args:
+            chunk_id: 章节块唯一标识符
+            task_id: 抽取任务唯一标识符
+            claim_category: 事实类别
+            claim_subject: 事实主体
+            claim_content: 事实内容描述
+
+        Returns:
+            ClaimExtraction: 事实陈述抽取记录实例
+        """
+        from datetime import datetime
+        created_at = datetime.now().isoformat()
+
+        return cls(
+            extraction_id=None,
+            chunk_id=chunk_id,
+            task_id=task_id,
+            claim_category=claim_category,
+            claim_subject=claim_subject,
+            claim_content=claim_content,
+            created_at=created_at
+        )
+
+    def __str__(self) -> str:
+        """字符串表示"""
+        return f"ClaimExtraction(id={self.extraction_id}, category='{self.claim_category}', subject='{self.claim_subject}')"

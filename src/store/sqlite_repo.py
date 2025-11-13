@@ -6,7 +6,7 @@ SQLite DQL (Data Query Language) 操作
 """
 from typing import List, Dict
 from sqlite3 import Connection
-from src.models import ChapterChunk, ChapterChunkTask
+from src.models import ChapterChunk, ChapterChunkTask, EntityExtraction, RelationExtraction, ClaimExtraction
 
 
 class ChapterChunkRepo:
@@ -285,4 +285,393 @@ class ChapterChunkTaskRepo:
             created_at=row['created_at'],
             started_at=row['started_at'],
             completed_at=row['completed_at']
+        )
+
+
+class EntityExtractionRepo:
+    """实体抽取记录数据仓库类，专注于 entity_extractions 表的操作"""
+
+    @staticmethod
+    def insert_extractions(conn: Connection, extractions: List[EntityExtraction]) -> int:
+        """
+        批量插入实体抽取记录
+
+        Args:
+            conn: 数据库连接对象
+            extractions: 实体抽取记录列表
+
+        Returns:
+            int: 成功插入的记录数量
+        """
+        if not extractions:
+            return 0
+
+        sql = """
+        INSERT INTO entity_extractions
+        (chunk_id, task_id, entity_name, entity_category, entity_description, created_at)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """
+
+        params_list = []
+        for extraction in extractions:
+            params = (
+                extraction.chunk_id,
+                extraction.task_id,
+                extraction.entity_name,
+                extraction.entity_category,
+                extraction.entity_description,
+                extraction.created_at
+            )
+            params_list.append(params)
+
+        cursor = conn.executemany(sql, params_list)
+        return cursor.rowcount
+
+    @staticmethod
+    def get_extractions_by_chunk_id(conn: Connection, chunk_id: str) -> List[EntityExtraction]:
+        """
+        根据章节块ID获取实体抽取记录
+
+        Args:
+            conn: 数据库连接对象
+            chunk_id: 章节块ID
+
+        Returns:
+            List[EntityExtraction]: 实体抽取记录列表
+        """
+        sql = "SELECT * FROM entity_extractions WHERE chunk_id = ? ORDER BY created_at"
+        cursor = conn.execute(sql, (chunk_id,))
+        rows = cursor.fetchall()
+
+        return [EntityExtractionRepo._row_to_extraction(row) for row in rows]
+
+    @staticmethod
+    def get_extractions_by_task_id(conn: Connection, task_id: str) -> List[EntityExtraction]:
+        """
+        根据任务ID获取实体抽取记录
+
+        Args:
+            conn: 数据库连接对象
+            task_id: 任务ID
+
+        Returns:
+            List[EntityExtraction]: 实体抽取记录列表
+        """
+        sql = "SELECT * FROM entity_extractions WHERE task_id = ? ORDER BY created_at"
+        cursor = conn.execute(sql, (task_id,))
+        rows = cursor.fetchall()
+
+        return [EntityExtractionRepo._row_to_extraction(row) for row in rows]
+
+    @staticmethod
+    def search_by_entity_name(conn: Connection, entity_name: str, limit: int = 100) -> List[EntityExtraction]:
+        """
+        根据实体名称搜索抽取记录
+
+        Args:
+            conn: 数据库连接对象
+            entity_name: 实体名称
+            limit: 限制返回数量
+
+        Returns:
+            List[EntityExtraction]: 实体抽取记录列表
+        """
+        sql = """
+        SELECT * FROM entity_extractions
+        WHERE entity_name = ?
+        ORDER BY created_at DESC
+        LIMIT ?
+        """
+        cursor = conn.execute(sql, (entity_name, limit))
+        rows = cursor.fetchall()
+
+        return [EntityExtractionRepo._row_to_extraction(row) for row in rows]
+
+    @staticmethod
+    def _row_to_extraction(row) -> EntityExtraction:
+        """
+        将数据库行转换为EntityExtraction对象
+
+        Args:
+            row: 数据库行对象
+
+        Returns:
+            EntityExtraction: 实体抽取记录对象
+        """
+        return EntityExtraction(
+            extraction_id=row['extraction_id'],
+            chunk_id=row['chunk_id'],
+            task_id=row['task_id'],
+            entity_name=row['entity_name'],
+            entity_category=row['entity_category'],
+            entity_description=row['entity_description'],
+            created_at=row['created_at']
+        )
+
+
+class RelationExtractionRepo:
+    """关系抽取记录数据仓库类，专注于 relation_extractions 表的操作"""
+
+    @staticmethod
+    def insert_extractions(conn: Connection, extractions: List[RelationExtraction]) -> int:
+        """
+        批量插入关系抽取记录
+
+        Args:
+            conn: 数据库连接对象
+            extractions: 关系抽取记录列表
+
+        Returns:
+            int: 成功插入的记录数量
+        """
+        if not extractions:
+            return 0
+
+        sql = """
+        INSERT INTO relation_extractions
+        (chunk_id, task_id, source_entity, target_entity, relationship_type, relationship_description, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        """
+
+        params_list = []
+        for extraction in extractions:
+            params = (
+                extraction.chunk_id,
+                extraction.task_id,
+                extraction.source_entity,
+                extraction.target_entity,
+                extraction.relationship_type,
+                extraction.relationship_description,
+                extraction.created_at
+            )
+            params_list.append(params)
+
+        cursor = conn.executemany(sql, params_list)
+        return cursor.rowcount
+
+    @staticmethod
+    def get_extractions_by_chunk_id(conn: Connection, chunk_id: str) -> List[RelationExtraction]:
+        """
+        根据章节块ID获取关系抽取记录
+
+        Args:
+            conn: 数据库连接对象
+            chunk_id: 章节块ID
+
+        Returns:
+            List[RelationExtraction]: 关系抽取记录列表
+        """
+        sql = "SELECT * FROM relation_extractions WHERE chunk_id = ? ORDER BY created_at"
+        cursor = conn.execute(sql, (chunk_id,))
+        rows = cursor.fetchall()
+
+        return [RelationExtractionRepo._row_to_extraction(row) for row in rows]
+
+    @staticmethod
+    def get_extractions_by_task_id(conn: Connection, task_id: str) -> List[RelationExtraction]:
+        """
+        根据任务ID获取关系抽取记录
+
+        Args:
+            conn: 数据库连接对象
+            task_id: 任务ID
+
+        Returns:
+            List[RelationExtraction]: 关系抽取记录列表
+        """
+        sql = "SELECT * FROM relation_extractions WHERE task_id = ? ORDER BY created_at"
+        cursor = conn.execute(sql, (task_id,))
+        rows = cursor.fetchall()
+
+        return [RelationExtractionRepo._row_to_extraction(row) for row in rows]
+
+    @staticmethod
+    def search_by_entity(conn: Connection, entity_name: str, limit: int = 100) -> List[RelationExtraction]:
+        """
+        根据实体名称搜索相关关系记录
+
+        Args:
+            conn: 数据库连接对象
+            entity_name: 实体名称
+            limit: 限制返回数量
+
+        Returns:
+            List[RelationExtraction]: 关系抽取记录列表
+        """
+        sql = """
+        SELECT * FROM relation_extractions
+        WHERE source_entity = ? OR target_entity = ?
+        ORDER BY created_at DESC
+        LIMIT ?
+        """
+        cursor = conn.execute(sql, (entity_name, entity_name, limit))
+        rows = cursor.fetchall()
+
+        return [RelationExtractionRepo._row_to_extraction(row) for row in rows]
+
+    @staticmethod
+    def _row_to_extraction(row) -> RelationExtraction:
+        """
+        将数据库行转换为RelationExtraction对象
+
+        Args:
+            row: 数据库行对象
+
+        Returns:
+            RelationExtraction: 关系抽取记录对象
+        """
+        return RelationExtraction(
+            extraction_id=row['extraction_id'],
+            chunk_id=row['chunk_id'],
+            task_id=row['task_id'],
+            source_entity=row['source_entity'],
+            target_entity=row['target_entity'],
+            relationship_type=row['relationship_type'],
+            relationship_description=row['relationship_description'],
+            created_at=row['created_at']
+        )
+
+
+class ClaimExtractionRepo:
+    """事实陈述抽取记录数据仓库类，专注于 claim_extractions 表的操作"""
+
+    @staticmethod
+    def insert_extractions(conn: Connection, extractions: List[ClaimExtraction]) -> int:
+        """
+        批量插入事实陈述抽取记录
+
+        Args:
+            conn: 数据库连接对象
+            extractions: 事实陈述抽取记录列表
+
+        Returns:
+            int: 成功插入的记录数量
+        """
+        if not extractions:
+            return 0
+
+        sql = """
+        INSERT INTO claim_extractions
+        (chunk_id, task_id, claim_category, claim_subject, claim_content, created_at)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """
+
+        params_list = []
+        for extraction in extractions:
+            params = (
+                extraction.chunk_id,
+                extraction.task_id,
+                extraction.claim_category,
+                extraction.claim_subject,
+                extraction.claim_content,
+                extraction.created_at
+            )
+            params_list.append(params)
+
+        cursor = conn.executemany(sql, params_list)
+        return cursor.rowcount
+
+    @staticmethod
+    def get_extractions_by_chunk_id(conn: Connection, chunk_id: str) -> List[ClaimExtraction]:
+        """
+        根据章节块ID获取事实陈述抽取记录
+
+        Args:
+            conn: 数据库连接对象
+            chunk_id: 章节块ID
+
+        Returns:
+            List[ClaimExtraction]: 事实陈述抽取记录列表
+        """
+        sql = "SELECT * FROM claim_extractions WHERE chunk_id = ? ORDER BY created_at"
+        cursor = conn.execute(sql, (chunk_id,))
+        rows = cursor.fetchall()
+
+        return [ClaimExtractionRepo._row_to_extraction(row) for row in rows]
+
+    @staticmethod
+    def get_extractions_by_task_id(conn: Connection, task_id: str) -> List[ClaimExtraction]:
+        """
+        根据任务ID获取事实陈述抽取记录
+
+        Args:
+            conn: 数据库连接对象
+            task_id: 任务ID
+
+        Returns:
+            List[ClaimExtraction]: 事实陈述抽取记录列表
+        """
+        sql = "SELECT * FROM claim_extractions WHERE task_id = ? ORDER BY created_at"
+        cursor = conn.execute(sql, (task_id,))
+        rows = cursor.fetchall()
+
+        return [ClaimExtractionRepo._row_to_extraction(row) for row in rows]
+
+    @staticmethod
+    def search_by_category(conn: Connection, claim_category: str, limit: int = 100) -> List[ClaimExtraction]:
+        """
+        根据事实类别搜索抽取记录
+
+        Args:
+            conn: 数据库连接对象
+            claim_category: 事实类别
+            limit: 限制返回数量
+
+        Returns:
+            List[ClaimExtraction]: 事实陈述抽取记录列表
+        """
+        sql = """
+        SELECT * FROM claim_extractions
+        WHERE claim_category = ?
+        ORDER BY created_at DESC
+        LIMIT ?
+        """
+        cursor = conn.execute(sql, (claim_category, limit))
+        rows = cursor.fetchall()
+
+        return [ClaimExtractionRepo._row_to_extraction(row) for row in rows]
+
+    @staticmethod
+    def search_by_subject(conn: Connection, claim_subject: str, limit: int = 100) -> List[ClaimExtraction]:
+        """
+        根据事实主体搜索抽取记录
+
+        Args:
+            conn: 数据库连接对象
+            claim_subject: 事实主体
+            limit: 限制返回数量
+
+        Returns:
+            List[ClaimExtraction]: 事实陈述抽取记录列表
+        """
+        sql = """
+        SELECT * FROM claim_extractions
+        WHERE claim_subject = ?
+        ORDER BY created_at DESC
+        LIMIT ?
+        """
+        cursor = conn.execute(sql, (claim_subject, limit))
+        rows = cursor.fetchall()
+
+        return [ClaimExtractionRepo._row_to_extraction(row) for row in rows]
+
+    @staticmethod
+    def _row_to_extraction(row) -> ClaimExtraction:
+        """
+        将数据库行转换为ClaimExtraction对象
+
+        Args:
+            row: 数据库行对象
+
+        Returns:
+            ClaimExtraction: 事实陈述抽取记录对象
+        """
+        return ClaimExtraction(
+            extraction_id=row['extraction_id'],
+            chunk_id=row['chunk_id'],
+            task_id=row['task_id'],
+            claim_category=row['claim_category'],
+            claim_subject=row['claim_subject'],
+            claim_content=row['claim_content'],
+            created_at=row['created_at']
         )
