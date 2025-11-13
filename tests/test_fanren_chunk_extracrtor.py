@@ -9,7 +9,7 @@ import os
 # 添加src目录到Python路径
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'src'))
 
-from chapter_chunk_extractor_fanren_impl import ChapterChunkExtractor
+from rmod.fanran_chapter_chunk_module import ChapterChunkExtractor
 
 
 def main():
