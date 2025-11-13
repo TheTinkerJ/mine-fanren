@@ -6,7 +6,7 @@ SQLite DQL (Data Query Language) 操作
 """
 from typing import List, Dict
 from sqlite3 import Connection
-from src.models import ChapterChunk
+from src.models import ChapterChunk, ChapterChunkTask
 
 
 class ChapterChunkRepo:
@@ -179,4 +179,110 @@ class ChapterChunkRepo:
             pos_start=row['pos_start'] or 0,
             pos_end=row['pos_end'] or 0,
             token_count=row['token_count'] or 0
+        )
+
+
+class ChapterChunkTaskRepo:
+    """章节块任务数据仓库类，专注于 chapter_chunk_task 表的操作"""
+
+    @staticmethod
+    def upsert_task(conn: Connection, task: ChapterChunkTask) -> int:
+        """
+        插入或更新任务（UPSERT操作）
+
+        Args:
+            conn: 数据库连接对象
+            task: 任务对象
+
+        Returns:
+            int: 成功处理的行数
+        """
+        sql = """
+        INSERT INTO chapter_chunk_task
+        (task_id, chunk_id, task_type, task_status, created_at, started_at, completed_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(chunk_id, task_type) DO UPDATE SET
+            task_id = excluded.task_id,
+            task_status = excluded.task_status,
+            started_at = excluded.started_at,
+            completed_at = excluded.completed_at
+        """
+
+        params = (
+            task.task_id,
+            task.chunk_id,
+            task.task_type,
+            task.task_status,
+            task.created_at,
+            task.started_at,
+            task.completed_at
+        )
+
+        cursor = conn.execute(sql, params)
+        return cursor.rowcount
+
+    @staticmethod
+    def get_task(conn: Connection, chunk_id: str, task_type: str) -> ChapterChunkTask | None:
+        """
+        根据chunk_id和task_type获取任务
+
+        Args:
+            conn: 数据库连接对象
+            chunk_id: 章节块ID
+            task_type: 任务类型
+
+        Returns:
+            ChapterChunkTask | None: 任务对象，如果不存在则返回None
+        """
+        sql = "SELECT * FROM chapter_chunk_task WHERE chunk_id = ? AND task_type = ?"
+        cursor = conn.execute(sql, (chunk_id, task_type))
+        row = cursor.fetchone()
+
+        if row:
+            return ChapterChunkTaskRepo._row_to_task(row)
+        return None
+
+    @staticmethod
+    def get_pending_tasks(conn: Connection, task_type: str, limit: int = 100) -> List[ChapterChunkTask]:
+        """
+        获取指定类型的待处理任务
+
+        Args:
+            conn: 数据库连接对象
+            task_type: 任务类型
+            limit: 限制返回数量，默认100
+
+        Returns:
+            List[ChapterChunkTask]: 待处理任务列表
+        """
+        sql = """
+        SELECT * FROM chapter_chunk_task
+        WHERE task_type = ? AND task_status = 'pending'
+        ORDER BY created_at ASC
+        LIMIT ?
+        """
+        cursor = conn.execute(sql, (task_type, limit))
+        rows = cursor.fetchall()
+
+        return [ChapterChunkTaskRepo._row_to_task(row) for row in rows]
+
+    @staticmethod
+    def _row_to_task(row) -> ChapterChunkTask:
+        """
+        将数据库行转换为ChapterChunkTask对象
+
+        Args:
+            row: 数据库行对象
+
+        Returns:
+            ChapterChunkTask: 任务对象
+        """
+        return ChapterChunkTask(
+            task_id=row['task_id'],
+            chunk_id=row['chunk_id'],
+            task_type=row['task_type'],
+            task_status=row['task_status'],
+            created_at=row['created_at'],
+            started_at=row['started_at'],
+            completed_at=row['completed_at']
         )

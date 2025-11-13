@@ -174,3 +174,60 @@ class PromptTemplate(BaseModel):
                 f"required_params={self.required_params}, notes='{self.notes[:50]}...')" if len(self.notes) > 50 else
                 f"PromptTemplate(template_key='{self.template_key}', version='{self.version}', "
                 f"required_params={self.required_params}, notes='{self.notes})")
+
+
+class ChapterChunkTask(BaseModel):
+    """章节块任务数据结构"""
+    task_id: str = Field(description="任务唯一标识符(UUID)")
+    chunk_id: str = Field(description="章节块唯一标识符")
+
+    # 任务类型和状态
+    task_type: str = Field(description="任务类型", pattern=r"^(embedding|er_claim)$")
+    task_status: str = Field(description="任务状态", default="pending", pattern=r"^(pending|processing|completed|failed)$")
+
+    # 时间戳
+    created_at: str = Field(description="创建时间")
+    started_at: str | None = Field(description="开始处理时间", default=None)
+    completed_at: str | None = Field(description="完成时间", default=None)
+
+    @classmethod
+    def create_task(
+        cls,
+        chunk_id: str,
+        task_type: str,
+        task_status: str = "pending"
+    ) -> "ChapterChunkTask":
+        """
+        创建章节块任务实例
+
+        Args:
+            chunk_id: 章节块唯一标识符
+            task_type: 任务类型 ('embedding', 'er_claim')
+            task_status: 任务状态，默认为 'pending'
+
+        Returns:
+            ChapterChunkTask: 章节块任务实例
+        """
+        from datetime import datetime
+
+        # 生成不带横线的UUID
+        task_id = uuid.uuid4().hex.replace('-', '')
+        created_at = datetime.now().isoformat()
+
+        return cls(
+            task_id=task_id,
+            chunk_id=chunk_id,
+            task_type=task_type,
+            task_status=task_status,
+            created_at=created_at
+        )
+
+    def __str__(self) -> str:
+        """字符串表示"""
+        return f"ChapterChunkTask(id={self.task_id}, type={self.task_type}, status={self.task_status})"
+
+    def __repr__(self) -> str:
+        """详细字符串表示"""
+        return (f"ChapterChunkTask(task_id='{self.task_id}', chunk_id='{self.chunk_id}', "
+                f"task_type='{self.task_type}', task_status='{self.task_status}', "
+                f"created_at='{self.created_at}')")
