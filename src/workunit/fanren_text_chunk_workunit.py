@@ -116,6 +116,7 @@ class FanrenTextChunkWorkUnit:
             with get_sqlite_db() as db:
                 conn = db.get_connection()
                 saved_count = ChapterChunkRepo.upsert_chunks(conn, chunks)
+                conn.commit()
 
                 logger.info(f"✓ 成功保存了 {saved_count} 个章节块到数据库")
                 return saved_count
