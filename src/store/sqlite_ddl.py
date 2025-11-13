@@ -8,7 +8,7 @@ SQLite DDL (Data Definition Language) 定义
 import sqlite3
 from typing import List
 from sqlite3 import Connection
-from .sqlite_types import SQLiteStorageError
+from src.store.sqlite_types import SQLiteStorageError
 
 
 # 章节块表创建语句

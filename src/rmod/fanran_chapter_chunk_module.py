@@ -5,17 +5,11 @@
 专门用于《凡人修仙传》小说章节分块提取
 """
 
-import sys
-import os
-from typing import List, Tuple, Dict
+
 import re
-
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from models import ChapterChunk
-from utils import count_tokens
-
+from src.models import ChapterChunk
+from src.utils import count_tokens
+from typing import List, Tuple, Dict
 
 class ChapterChunkExtractor:
     """章节块提取器"""

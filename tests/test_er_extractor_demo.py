@@ -14,7 +14,7 @@ import os
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, project_root)
 
-from imod.fanren_er_extract_module import FanrenEntityExtractor
+from src.imod.fanren_er_extract_module import FanrenEntityExtractor
 
 # Configure logging
 logging.basicConfig(

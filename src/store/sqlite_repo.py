@@ -6,7 +6,7 @@ SQLite DQL (Data Query Language) 操作
 """
 from typing import List, Dict
 from sqlite3 import Connection
-from ..models import ChapterChunk
+from src.models import ChapterChunk
 
 
 class ChapterChunkRepo:

@@ -20,11 +20,11 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.exceptions import OutputParserException
 
-from .fanren_er_extract_prompts import (
+from src.imod.fanren_er_extract_prompts import (
     FANREN_ENTITY_EXTRACTION_SYSTEM_TEMPLATE,
     FANREN_ENTITY_EXTRACTION_PROMPT_TEMPLATE
 )
-from .types import ErExtractEntity, ErExtractRelation, ErExtractResult
+from src.imod.types import ErExtractEntity, ErExtractRelation, ErExtractResult
 
 # Configure logger
 logger = logging.getLogger(__name__)
