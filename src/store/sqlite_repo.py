@@ -10,7 +10,14 @@ from src.models import ChapterChunk, ChapterChunkTask, EntityExtraction, Relatio
 
 
 class ChapterChunkRepo:
-    """章节块数据仓库类，专注于 chapter_chunks 表的操作"""
+    """章节块数据仓库类，专注于 chapter_chunks 表的操作
+
+    支持的操作：
+    - upsert_chunks: 批量插入或更新章节块
+    - get_chunks_by_ids: 根据chunk_id列表批量查询章节块
+    - get_chunks_by_chapter_ids: 根据小说名称和章节ID列表批量查询
+    - delete_chunk: 删除单个章节块
+    """
 
     @staticmethod
     def upsert_chunks(conn: Connection, chunks: List[ChapterChunk]) -> int:
@@ -183,7 +190,13 @@ class ChapterChunkRepo:
 
 
 class ChapterChunkTaskRepo:
-    """章节块任务数据仓库类，专注于 chapter_chunk_task 表的操作"""
+    """章节块任务数据仓库类，专注于 chapter_chunk_task 表的操作
+
+    支持的操作：
+    - upsert_task: 插入或更新任务（UPSERT操作）
+    - get_task: 根据chunk_id和task_type获取单个任务
+    - get_pending_tasks: 获取指定类型的待处理任务（支持分页）
+    """
 
     @staticmethod
     def upsert_task(conn: Connection, task: ChapterChunkTask) -> int:
@@ -289,7 +302,14 @@ class ChapterChunkTaskRepo:
 
 
 class EntityExtractionRepo:
-    """实体抽取记录数据仓库类，专注于 entity_extractions 表的操作"""
+    """实体抽取记录数据仓库类，专注于 entity_extractions 表的操作
+
+    支持的操作：
+    - insert_extractions: 批量插入实体抽取记录
+    - get_extractions_by_chunk_id: 根据章节块ID获取实体抽取记录
+    - get_extractions_by_task_id: 根据任务ID获取实体抽取记录
+    - search_by_entity_name: 根据实体名称搜索抽取记录（支持分页）
+    """
 
     @staticmethod
     def insert_extractions(conn: Connection, extractions: List[EntityExtraction]) -> int:
@@ -410,7 +430,14 @@ class EntityExtractionRepo:
 
 
 class RelationExtractionRepo:
-    """关系抽取记录数据仓库类，专注于 relation_extractions 表的操作"""
+    """关系抽取记录数据仓库类，专注于 relation_extractions 表的操作
+
+    支持的操作：
+    - insert_extractions: 批量插入关系抽取记录
+    - get_extractions_by_chunk_id: 根据章节块ID获取关系抽取记录
+    - get_extractions_by_task_id: 根据任务ID获取关系抽取记录
+    - search_by_entity: 根据实体名称搜索相关关系记录（支持分页）
+    """
 
     @staticmethod
     def insert_extractions(conn: Connection, extractions: List[RelationExtraction]) -> int:
@@ -533,7 +560,15 @@ class RelationExtractionRepo:
 
 
 class ClaimExtractionRepo:
-    """事实陈述抽取记录数据仓库类，专注于 claim_extractions 表的操作"""
+    """事实陈述抽取记录数据仓库类，专注于 claim_extractions 表的操作
+
+    支持的操作：
+    - insert_extractions: 批量插入事实陈述抽取记录
+    - get_extractions_by_chunk_id: 根据章节块ID获取事实陈述抽取记录
+    - get_extractions_by_task_id: 根据任务ID获取事实陈述抽取记录
+    - search_by_category: 根据事实类别搜索抽取记录（支持分页）
+    - search_by_subject: 根据事实主体搜索抽取记录（支持分页）
+    """
 
     @staticmethod
     def insert_extractions(conn: Connection, extractions: List[ClaimExtraction]) -> int:
