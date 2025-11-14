@@ -213,6 +213,28 @@ class ChapterChunkRepo:
         return [ChapterChunkRepo._row_to_chunk(row) for row in rows]
 
     @staticmethod
+    def get_all_chunks(conn: Connection, limit: int = 10000) -> List[ChapterChunk]:
+        """
+        获取所有章节块
+
+        Args:
+            conn: 数据库连接对象
+            limit: 返回结果数量限制
+
+        Returns:
+            List[ChapterChunk]: 章节块列表
+        """
+        sql = """
+        SELECT * FROM chapter_chunks
+        ORDER BY chapter_id ASC, line_start ASC
+        LIMIT ?
+        """
+        cursor = conn.execute(sql, (limit,))
+        rows = cursor.fetchall()
+
+        return [ChapterChunkRepo._row_to_chunk(row) for row in rows]
+
+    @staticmethod
     def get_chunk_count(conn: Connection) -> int:
         """
         获取章节块总数
