@@ -8,6 +8,7 @@
 from typing import List, Optional
 from pydantic import BaseModel, Field
 import uuid
+from src.imod.types import ErExtractEntity, ErExtractRelation, ClaimExtractItem
 
 
 class ChapterChunk(BaseModel):
@@ -397,3 +398,49 @@ class ClaimExtraction(BaseModel):
     def __str__(self) -> str:
         """字符串表示"""
         return f"ClaimExtraction(id={self.extraction_id}, category='{self.claim_category}', subject='{self.claim_subject}')"
+
+
+class ErClaimWorkResult(BaseModel):
+    """ER-Claim工作单元执行结果"""
+    chunk_id: str = Field(description="处理的章节块ID")
+    task_id: str = Field(description="关联的任务ID")
+
+    # 抽取结果
+    entities: List[ErExtractEntity] = Field(default=[], description="提取的实体列表")
+    relationships: List[ErExtractRelation] = Field(default=[], description="提取的关系列表")
+    claims: List[ClaimExtractItem] = Field(default=[], description="提取的事实陈述列表")
+
+    @classmethod
+    def create_result(
+        cls,
+        chunk_id: str,
+        task_id: str,
+        entities: List[ErExtractEntity] | None = None,
+        relationships: List[ErExtractRelation] | None = None,
+        claims: List[ClaimExtractItem] | None = None
+    ) -> "ErClaimWorkResult":
+        """
+        创建工作单元执行结果实例
+
+        Args:
+            chunk_id: 章节块ID
+            task_id: 任务ID
+            entities: 实体列表
+            relationships: 关系列表
+            claims: 事实列表
+
+        Returns:
+            ErClaimWorkResult: 执行结果实例
+        """
+        return cls(
+            chunk_id=chunk_id,
+            task_id=task_id,
+            entities=entities or [],
+            relationships=relationships or [],
+            claims=claims or []
+        )
+
+    def __str__(self) -> str:
+        """字符串表示"""
+        return (f"ErClaimWorkResult(chunk_id='{self.chunk_id}', "
+                f"entities={len(self.entities)}, relationships={len(self.relationships)}, claims={len(self.claims)})")
