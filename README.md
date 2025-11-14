@@ -20,18 +20,56 @@
 mine-fanren/
 ├── README.md           # 项目说明文档
 ├── pyproject.toml      # Python项目配置
+├── scripts/            # 运行脚本目录
+│   ├── install_deps.py # 安装依赖脚本
+│   ├── run_task_generator.py # 任务生成器脚本
+│   └── README.md       # 脚本说明
+├── src/                # 源代码目录
+│   ├── models.py       # 数据模型
+│   ├── store/          # 数据存储
+│   ├── imod/           # 智能模块
+│   └── workunit/       # 工作单元
 ├── resources/          # 资源文件目录
 │   └── ignored/        # 不纳入git的文件目录
-│       └── 1.txt      # 小说文本数据
+│       ├── 1.txt      # 小说文本数据
+│       └── sqlite.db   # SQLite数据库
 └── .venv/             # Python虚拟环境
+```
+
+## 快速开始
+
+### 1. 安装依赖
+```bash
+python3 scripts/install_deps.py
+```
+
+### 2. 运行任务生成器
+```bash
+python3 scripts/run_task_generator.py
 ```
 
 ## 当前状态
 
-- 已获取小说文本数据（需处理编码问题）
-- 项目基础结构已搭建
-- 等待明确具体的数据挖掘需求方向
+- ✅ 完整的数据存储架构
+- ✅ 智能抽取模块（实体关系、事实陈述）
+- ✅ 任务生成和工作单元系统
+- ✅ 文本切块和预处理功能
 
 ## 环境要求
 
 - Python >= 3.12
+- 依赖包：pydantic, langchain, python-dotenv
+
+## 核心组件
+
+### 工作单元 (src/workunit/)
+- **FanrenTaskGeneratorWorkUnit** - 任务生成器
+- **ERClaimWorkUnit** - 实体关系和事实抽取
+
+### 智能模块 (src/imod/)
+- **FanrenEntityExtractor** - 实体关系抽取
+- **FanrenClaimExtractor** - 事实陈述抽取
+
+### 数据存储 (src/store/)
+- **SQLite数据库** - 章节块、任务、抽取结果存储
+- **Repository模式** - 数据访问层
