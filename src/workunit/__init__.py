@@ -5,5 +5,6 @@
 """
 
 from .fanren_er_claim_workunit import ERClaimWorkUnit
+from .fanren_task_generator_workunit import FanrenTaskGeneratorWorkUnit
 
-__all__ = ["ERClaimWorkUnit"]
+__all__ = ["ERClaimWorkUnit", "FanrenTaskGeneratorWorkUnit"]

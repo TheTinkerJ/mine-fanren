@@ -4,7 +4,7 @@
 SQLite DQL (Data Query Language) 操作
 包含章节块的增删改查操作
 """
-from typing import List, Dict
+from typing import List, Dict, Optional
 from sqlite3 import Connection
 from src.models import ChapterChunk, ChapterChunkTask, EntityExtraction, RelationExtraction, ClaimExtraction
 
@@ -189,6 +189,46 @@ class ChapterChunkRepo:
         )
 
 
+    @staticmethod
+    def get_chunks_without_task_type(conn: Connection, task_type: str) -> List[ChapterChunk]:
+        """
+        获取还没有指定类型任务的章节块
+
+        Args:
+            conn: 数据库连接对象
+            task_type: 任务类型
+
+        Returns:
+            List[ChapterChunk]: 没有任务的章节块列表
+        """
+        sql = """
+        SELECT c.* FROM chapter_chunks c
+        LEFT JOIN chapter_chunk_task t ON c.chunk_id = t.chunk_id AND t.task_type = ?
+        WHERE t.chunk_id IS NULL
+        ORDER BY c.chapter_id ASC
+        """
+        cursor = conn.execute(sql, (task_type,))
+        rows = cursor.fetchall()
+
+        return [ChapterChunkRepo._row_to_chunk(row) for row in rows]
+
+    @staticmethod
+    def get_chunk_count(conn: Connection) -> int:
+        """
+        获取章节块总数
+
+        Args:
+            conn: 数据库连接对象
+
+        Returns:
+            int: 章节块总数
+        """
+        sql = "SELECT COUNT(*) as count FROM chapter_chunks"
+        cursor = conn.execute(sql)
+        row = cursor.fetchone()
+        return row['count'] if row else 0
+
+
 class ChapterChunkTaskRepo:
     """章节块任务数据仓库类，专注于 chapter_chunk_task 表的操作
 
@@ -299,6 +339,59 @@ class ChapterChunkTaskRepo:
             started_at=row['started_at'],
             completed_at=row['completed_at']
         )
+
+    @staticmethod
+    def batch_insert_tasks(conn: Connection, tasks: List[ChapterChunkTask]) -> int:
+        """
+        批量插入任务
+
+        Args:
+            conn: 数据库连接对象
+            tasks: 任务对象列表
+
+        Returns:
+            int: 成功插入的行数
+        """
+        if not tasks:
+            return 0
+
+        sql = """
+        INSERT OR REPLACE INTO chapter_chunk_task
+        (task_id, chunk_id, task_type, task_status, created_at, started_at, completed_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        """
+
+        params_list = []
+        for task in tasks:
+            params = (
+                task.task_id,
+                task.chunk_id,
+                task.task_type,
+                task.task_status,
+                task.created_at,
+                task.started_at,
+                task.completed_at
+            )
+            params_list.append(params)
+
+        cursor = conn.executemany(sql, params_list)
+        return cursor.rowcount
+
+    @staticmethod
+    def delete_tasks_by_type(conn: Connection, task_type: str) -> int:
+        """
+        删除指定类型的所有任务
+
+        Args:
+            conn: 数据库连接对象
+            task_type: 任务类型
+
+        Returns:
+            int: 删除的行数
+        """
+        sql = "DELETE FROM chapter_chunk_task WHERE task_type = ?"
+        cursor = conn.execute(sql, (task_type,))
+        return cursor.rowcount
 
 
 class EntityExtractionRepo:
