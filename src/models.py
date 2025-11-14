@@ -182,7 +182,7 @@ class ChapterChunkTask(BaseModel):
     chunk_id: str = Field(description="章节块唯一标识符")
 
     # 任务类型和状态
-    task_type: str = Field(description="任务类型", pattern=r"^(embedding|er_claim)$")
+    task_type: str = Field(description="任务类型")
     task_status: str = Field(description="任务状态", default="pending", pattern=r"^(pending|processing|completed|failed)$")
 
     # 时间戳

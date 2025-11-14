@@ -6,8 +6,7 @@
 """
 
 import logging
-from typing import List, Literal, Optional
-
+from typing import List, Optional
 from src.models import ChapterChunkTask
 from src.store.sqlite_repo import ChapterChunkRepo, ChapterChunkTaskRepo
 from src.store.sqlite_conn import get_sqlite_db
@@ -21,14 +20,14 @@ class FanrenTaskGeneratorWorkUnit:
     
     def generate_pending_tasks(
         self,
-        task_type: Literal["embedding", "er_claim"],
+        task_type: str,
         limit: Optional[int] = None
     ) -> List[ChapterChunkTask]:
         """
         生成待处理的任务（为还没有该类型任务的章节块生成任务）
 
         Args:
-            task_type: 任务类型
+            task_type: 用户自定义的任务类型名称
             limit: 生成任务数量限制
 
         Returns:
@@ -85,7 +84,10 @@ def example_usage():
     task_generator = FanrenTaskGeneratorWorkUnit()
 
     # 生成待处理任务
-    tasks = task_generator.generate_pending_tasks("er_claim", limit=100)
+    # 示例：用户自定义的任务类型
+    tasks = task_generator.generate_pending_tasks("erc", limit=100) # 实体关系陈述 ERC 
+    # 或者：tasks = task_generator.generate_pending_tasks("情感分析", limit=50)
+    # 或者：tasks = task_generator.generate_pending_tasks("事实抽取", limit=200)
 
     
     
