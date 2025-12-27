@@ -5,9 +5,9 @@ SQLite 存储模块
 提供 ChapterChunk 的 SQLite 数据库存储功能
 """
 
-from .sqlite_conn import SqliteDB, get_sqlite_db
-from .sqlite_repo import ChapterChunkRepo
-from .sqlite_types import SQLiteStorageError
+from src.store.sqlite_conn import SqliteDB, get_sqlite_db
+from src.store.sqlite_repo import ChapterChunkRepo
+from src.store.sqlite_types import SQLiteStorageError
 
 __all__ = [
     # 核心接口

@@ -7,7 +7,7 @@
 import sqlite3
 from pathlib import Path
 from typing import Optional
-from .sqlite_ddl import init_database
+from src.store.sqlite_ddl import init_database
 
 
 class SqliteDB:

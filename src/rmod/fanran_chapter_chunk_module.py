@@ -5,19 +5,11 @@
 专门用于《凡人修仙传》小说章节分块提取
 """
 
-import sys
-import os
-from typing import List, Tuple, Dict
+
 import re
-
-# 添加项目根目录到 Python 路径，支持直接运行脚本
-# project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# if project_root not in sys.path:
-#     sys.path.insert(0, project_root)
-
-from .models import ChapterChunk
-from .utils import count_tokens
-
+from src.models import ChapterChunk
+from src.utils import count_tokens
+from typing import List, Tuple, Dict
 
 class ChapterChunkExtractor:
     """章节块提取器"""
@@ -35,7 +27,6 @@ class ChapterChunkExtractor:
         "1761第十卷魔界之战第一千七百六十一章真血隐忧": (1761, "volume_chapter"),
         "第十卷魔界之战一千八百零五章一抓,一拳,一掌": (1805, "volume_chapter"),
         "第十卷魔界之战1875": (1875, "volume_chapter"),
-        "第十卷魔界之战1875": (1876, "volume_chapter"),
         "第十卷魔界之战人魔之战（二）": (1883, "volume_chapter"),
         "第十卷魔界之战人魔之战（二）": (1884, "volume_chapter"),
         "第十卷魔界之战一千九百零六章": (1906, "volume_chapter"),
